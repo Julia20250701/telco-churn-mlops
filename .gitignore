@@ -39,6 +39,10 @@ airflow-webserver.pid
 # DVC local cache
 .dvc/cache/
 
+# Artifacts
+artifacts/*
+!artifacts/.gitkeep
+
 # Large local artifacts
 data/raw/*
 data/preprocessed/*

@@ -4,6 +4,25 @@ import json
 from pathlib import Path
 
 
+def get_latest_run_dir(model_variant: str) -> Path:
+    """
+    Return the latest run directory for a given model variant.
+    Example:
+    artifacts/baseline/20260306_104405/
+    """
+    base_dir = Path("artifacts") / model_variant
+
+    if not base_dir.exists():
+        raise FileNotFoundError(f"Artifact directory not found: {base_dir}")
+
+    run_dirs = [path for path in base_dir.iterdir() if path.is_dir()]
+    if not run_dirs:
+        raise FileNotFoundError(f"No run directories found in: {base_dir}")
+
+    latest_run = sorted(run_dirs)[-1]
+    return latest_run
+
+
 def load_metrics(path: str | Path) -> dict:
     """
     Load a metrics JSON file.
@@ -38,7 +57,7 @@ def print_comparison_table(baseline: dict, engineered: dict) -> None:
     """
     Print a simple side-by-side comparison table.
     """
-    print("\n--- Model Comparison ---")
+    print("\n--- Latest Model Comparison ---")
     print(f"{'Metric':<18} {'Baseline':<12} {'Engineered':<12}")
     print("-" * 44)
 
@@ -72,26 +91,25 @@ def choose_best_model(baseline: dict, engineered: dict, metric: str = "churn_f1"
         return f"Could not determine best model because metric '{metric}' is missing."
 
     if baseline_value > engineered_value:
-        return (
-            f"Baseline model is better based on {metric}: "
-            f"{baseline_value:.4f} > {engineered_value:.4f}"
-        )
-
+        return f"Baseline model is better based on {metric}: {baseline_value:.4f} > {engineered_value:.4f}"
     if engineered_value > baseline_value:
-        return (
-            f"Engineered model is better based on {metric}: "
-            f"{engineered_value:.4f} > {baseline_value:.4f}"
-        )
+        return f"Engineered model is better based on {metric}: {engineered_value:.4f} > {baseline_value:.4f}"
 
     return f"Both models are tied on {metric}: {baseline_value:.4f}"
 
 
 def main() -> None:
-    baseline_metrics = load_metrics("results/baseline_metrics.json")
-    engineered_metrics = load_metrics("results/engineered_metrics.json")
+    baseline_run_dir = get_latest_run_dir("baseline")
+    engineered_run_dir = get_latest_run_dir("engineered")
+
+    baseline_metrics = load_metrics(baseline_run_dir / "metrics.json")
+    engineered_metrics = load_metrics(engineered_run_dir / "metrics.json")
 
     baseline_summary = extract_summary(baseline_metrics)
     engineered_summary = extract_summary(engineered_metrics)
+
+    print(f"Latest baseline run:   {baseline_run_dir}")
+    print(f"Latest engineered run: {engineered_run_dir}")
 
     print_comparison_table(baseline_summary, engineered_summary)
     print()

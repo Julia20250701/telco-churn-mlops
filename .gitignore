@@ -63,3 +63,4 @@ results/*
 !logs/.gitkeep
 /models
 /results
+/artifacts

@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+
+# Notebook
+.ipynb_checkpoints/
+
+# Logs
+logs/*.log
+*.log
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ruff
+.ruff_cache/
+
+# MLflow
+mlruns/
+
+# Airflow
+airflow.db
+airflow-webserver.pid
+
+# DVC local cache
+.dvc/cache/
+
+# Large local artifacts
+data/raw/*
+data/preprocessed/*
+models/*
+results/*
+
+# Keep folder structure
+!data/raw/.gitkeep
+!data/preprocessed/.gitkeep
+!models/.gitkeep
+!results/.gitkeep
+!logs/.gitkeep

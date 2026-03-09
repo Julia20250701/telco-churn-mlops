@@ -1,66 +1,27 @@
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+.pytest_cache/
 .venv/
 
-# Editors / OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-
-# Env
+# Env files
 .env
 
-# Notebook
-.ipynb_checkpoints/
+# OS / editor
+.DS_Store
+.vscode/
 
-# Logs
-logs/*.log
-*.log
-
-# Test / coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Ruff
-.ruff_cache/
-
-# MLflow
+# MLflow / runtime
 mlruns/
+mlartifacts/
+*.db
 
-# Airflow
-airflow.db
-airflow-webserver.pid
+# Project outputs
+artifacts/
+results/
 
-# DVC local cache
-.dvc/cache/
+# Data
+data/raw/
 
-# Artifacts
-artifacts/*
-!artifacts/.gitkeep
-
-# Large local artifacts
-data/raw/*
-data/preprocessed/*
-models/*
-results/*
-
-# Keep DVC pointer files
-!data/raw/*.dvc
-!data/preprocessed/*.dvc
-!models.dvc
-!results.dvc
-
-# Keep folder structure
-!data/raw/.gitkeep
-!data/preprocessed/.gitkeep
-!models/.gitkeep
-!results/.gitkeep
-!logs/.gitkeep
-/models
-/results
-/artifacts
+# Models
+models/

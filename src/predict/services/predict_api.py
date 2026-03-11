@@ -1,82 +1,59 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 
 import pandas as pd
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 
-from src.predict.core.load_model import (
-    clear_model_cache,
-    get_model_source,
-    load_prediction_model,
-)
-from src.predict.core.schemas import PredictionRequest, PredictionResponse
-
-# Explicitly load .env before app startup logic runs
-load_dotenv()
+from src.predict.core.load_model import load_prediction_model
+from src.predict.core.schemas import HealthResponse, PredictionRequest, PredictionResponse
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("DEBUG: app startup - loading model...")
-    try:
-        app.state.model = load_prediction_model()
-        print(f"DEBUG: app startup - model loaded -> {type(app.state.model)}")
-    except Exception as exc:
-        print(f"DEBUG: app startup - model load failed -> {exc}")
-        raise
+    app.state.model = load_prediction_model()
+    print(f"DEBUG: app startup - model loaded -> {type(app.state.model)}")
     yield
 
 
-app = FastAPI(title="Predict API", lifespan=lifespan)
+app = FastAPI(
+    title="Telco Churn Predict API",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 
-@app.get("/")
-def root() -> dict[str, str]:
-    return {"message": "predict api running"}
-
-
-@app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.post("/reload-model")
-def reload_model() -> dict[str, str]:
-    try:
-        clear_model_cache()
-        app.state.model = load_prediction_model()
-        return {
-            "status": "ok",
-            "model_source": get_model_source(),
-            "message": "Model cache cleared and model reloaded successfully.",
-        }
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+@app.get("/health", response_model=HealthResponse)
+def health() -> HealthResponse:
+    return HealthResponse(status="ok")
 
 
 @app.post("/predict", response_model=PredictionResponse)
 def predict(payload: PredictionRequest) -> PredictionResponse:
-    try:
-        model = app.state.model
+    model = app.state.model
 
-        features_df = pd.DataFrame([payload.model_dump()])
+    input_df = pd.DataFrame([payload.model_dump()])
 
-        prediction = int(model.predict(features_df)[0])
+    prediction = model.predict(input_df)[0]
 
-        churn_probability = None
-        if hasattr(model, "predict_proba"):
-            probabilities = model.predict_proba(features_df)
-            churn_probability = float(probabilities[0][1])
+    churn_probability = None
+    if hasattr(model, "predict_proba"):
+        churn_probability = float(model.predict_proba(input_df)[0][1])
 
-        prediction_label = "churn" if prediction == 1 else "no churn"
+    prediction_int = int(prediction)
+    prediction_label = "churn" if prediction_int == 1 else "no_churn"
 
-        return PredictionResponse(
-            prediction=prediction,
-            prediction_label=prediction_label,
-            churn_probability=churn_probability,
-            model_source=get_model_source(),
-        )
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    model_source = (
+        "registry"
+        if os.getenv("PREDICT_LOAD_FROM_REGISTRY", "0") == "1"
+        else "local_file"
+    )
+
+    return PredictionResponse(
+        prediction=prediction_int,
+        prediction_label=prediction_label,
+        churn_probability=churn_probability,
+        model_source=model_source,
+    )

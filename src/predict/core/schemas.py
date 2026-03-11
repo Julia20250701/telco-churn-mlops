@@ -32,3 +32,7 @@ class PredictionResponse(BaseModel):
     prediction_label: str
     churn_probability: Optional[float] = None
     model_source: str
+
+
+class HealthResponse(BaseModel):
+    status: str

@@ -46,9 +46,7 @@ def predict(payload: PredictionRequest) -> PredictionResponse:
     prediction_label = "churn" if prediction_int == 1 else "no_churn"
 
     model_source = (
-        "registry"
-        if os.getenv("PREDICT_LOAD_FROM_REGISTRY", "0") == "1"
-        else "local_file"
+        "registry" if os.getenv("PREDICT_LOAD_FROM_REGISTRY", "0") == "1" else "local_file"
     )
 
     return PredictionResponse(

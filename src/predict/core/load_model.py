@@ -21,8 +21,7 @@ def _load_from_local_file():
     local_model_path = os.getenv("PREDICT_LOCAL_MODEL_PATH", "").strip()
     if not local_model_path:
         raise ValueError(
-            "PREDICT_LOCAL_MODEL_PATH must be set when "
-            "PREDICT_LOAD_FROM_REGISTRY is not enabled."
+            "PREDICT_LOCAL_MODEL_PATH must be set when PREDICT_LOAD_FROM_REGISTRY is not enabled."
         )
 
     print(f"Loading prediction model from local file: {local_model_path}")

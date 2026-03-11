@@ -33,9 +33,7 @@ def get_tracking_uri() -> str:
     if mode == "dagshub":
         return _get_env("DAGSHUB_MLFLOW_TRACKING_URI")
 
-    raise ValueError(
-        f"Unsupported MLFLOW_MODE='{mode}'. Use 'local' or 'dagshub'."
-    )
+    raise ValueError(f"Unsupported MLFLOW_MODE='{mode}'. Use 'local' or 'dagshub'.")
 
 
 def configure_mlflow_tracking() -> str:
